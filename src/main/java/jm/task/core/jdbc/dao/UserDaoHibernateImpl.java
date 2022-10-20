@@ -16,13 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    public UserDaoHibernateImpl() {
+    public UserDaoHibernateImpl() {}
 
-    }
-    SessionFactory sessionFactory = Util.getSessionFactory();
+    private SessionFactory sessionFactory = Util.getInstance().getSessionFactory();
     @Override
     public void createUsersTable() {
-        Transaction transaction = null;
+         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.createSQLQuery("DROP TABLE IF EXISTS user").executeUpdate();
@@ -37,7 +36,8 @@ public class UserDaoHibernateImpl implements UserDao {
             //session.close();
         } catch (Exception e) {
             System.out.println("Ошибка при создании таблицы");
-            transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
         }
     }
     @Override
@@ -51,7 +51,8 @@ public class UserDaoHibernateImpl implements UserDao {
             //session.close();
         } catch (Exception e) {
             System.out.println("Ошибка при удалении таблицы");
-            transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
         }
     }
 
@@ -71,7 +72,8 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("User с именем – " + name + " добавлен в базу данных");
         } catch (Exception e) {
             System.out.println("Ошибка при сохранении пользователя");
-            transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
         }
     }
 
@@ -81,16 +83,14 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession();) {
             transaction = session.beginTransaction();
-
-            User user = (User) session.load(User.class, id);
-            session.delete(user);
-
+            session.delete(session.get(User.class, id));
             transaction.commit();
 
             //session.close();
         } catch (Exception e) {
             System.out.println("Ошибка при удалении пользователя");
-            transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
         }
     }
 
@@ -114,13 +114,14 @@ public class UserDaoHibernateImpl implements UserDao {
     public void cleanUsersTable() {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()){
+
             transaction = session.beginTransaction();
             session.createSQLQuery("TRUNCATE TABLE User").executeUpdate();
             transaction.commit();
-
         } catch (Exception e) {
             System.out.println("Ошибка при очистке таблицы user");
-            transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
         }
     }
 }

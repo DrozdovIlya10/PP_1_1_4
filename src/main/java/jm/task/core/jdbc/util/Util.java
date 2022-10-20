@@ -15,15 +15,15 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 public class Util {
-private static Util session;
+private static Util instance;
 
     private Util() {}
 
-    public static Util getUtil() {
-        if(session == null) {
-            session = new Util();
+    public static Util getInstance() {
+        if(instance == null) {
+            instance = new Util();
         }
-        return session;
+        return instance;
     }
     public static SessionFactory getSessionFactory() {
 
